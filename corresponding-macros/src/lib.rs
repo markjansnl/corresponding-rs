@@ -1,20 +1,21 @@
 use proc_macro::TokenStream;
-use quote::{ToTokens};
-use syn::{parse_macro_input, ItemMod, parse_quote, Item, Stmt};
+use quote::ToTokens;
+use syn::{parse_macro_input, parse_quote, Item, ItemMod, Stmt};
 
 #[proc_macro_attribute]
 pub fn derive_corresponding(_metadata: TokenStream, input: TokenStream) -> TokenStream {
     let mut input = parse_macro_input!(input as ItemMod);
     if let Some((_, ref mut items)) = input.content {
-        let mut structs = vec![];
-        for item in items.iter() {
-            match item {
-                Item::Struct(item_struct) => {
-                    structs.push(item_struct.clone());
-                },
-                _ => {}
-            }
-        }
+        let structs: Vec<_> = items
+            .iter()
+            .filter_map(|item| {
+                if let Item::Struct(item_struct) = item {
+                    Some(item_struct.clone())
+                } else {
+                    None
+                }
+            })
+            .collect();
 
         for l in &structs {
             for r in &structs {
@@ -28,16 +29,17 @@ pub fn derive_corresponding(_metadata: TokenStream, input: TokenStream) -> Token
                             let r_field_id_string = r_field_id.clone().unwrap().to_string();
 
                             if l_field_id_string == r_field_id_string && l_field.ty == r_field.ty {
-                                statements.push(parse_quote! { self. #l_field_id = rhs. #r_field_id ; });
+                                statements
+                                    .push(parse_quote! { self. #l_field_id = rhs. #r_field_id ; });
                             }
                         }
                     }
 
                     let l_id = &l.ident;
                     let r_id = &r.ident;
-                    items.push(parse_quote! {   
+                    items.push(parse_quote! {
                         impl ::corresponding::MoveCorresponding< #r_id > for #l_id {
-                            #[inline]     
+                            #[inline]
                             fn move_corresponding(&mut self, rhs: #r_id ) {
                                 #(#statements)*
                             }
