@@ -1,8 +1,8 @@
 use proc_macro::TokenStream;
-use quote::ToTokens;
+use quote::{ToTokens, __private::TokenTree};
 use syn::{
     parse_macro_input, parse_quote, AngleBracketedGenericArguments, GenericArgument, Ident, Item,
-    ItemMod, Path, PathArguments, Stmt, Type, TypePath,
+    ItemMod, Path, PathArguments, PathSegment, Stmt, Type, TypePath,
 };
 
 #[derive(Debug)]
@@ -22,6 +22,9 @@ pub fn derive_corresponding(_metadata: TokenStream, input: TokenStream) -> Token
             for r in &structs {
                 if l != r {
                     items.push(generate_move_corresponding_impl(l, r));
+                    if has_default_derive(l) {
+                        items.push(generate_from_impl(l, r));
+                    }
                 }
             }
         }
@@ -42,6 +45,8 @@ fn get_structs(items: &Vec<Item>) -> Vec<syn::ItemStruct> {
 }
 
 fn generate_move_corresponding_impl(l: &syn::ItemStruct, r: &syn::ItemStruct) -> Item {
+    let l_ident = &l.ident;
+    let r_ident = &r.ident;
     let mut statements: Vec<Stmt> = vec![];
 
     for l_field in &l.fields {
@@ -64,14 +69,49 @@ fn generate_move_corresponding_impl(l: &syn::ItemStruct, r: &syn::ItemStruct) ->
         }
     }
 
-    let l_id = &l.ident;
-    let r_id = &r.ident;
+    parse_quote! {
+        impl ::corresponding::MoveCorresponding< #r_ident > for #l_ident {
+            #[inline]
+            fn move_corresponding(&mut self, rhs: #r_ident ) {
+                #(#statements)*
+            }
+        }
+    }
+}
+
+fn has_default_derive(l: &syn::ItemStruct) -> bool {
+    for attribute in l.clone().attrs {
+        if let Some(PathSegment { ident, .. }) = attribute.path.segments.first() {
+            if ident.to_string().as_str() == "derive" {
+                for token_tree in attribute.tokens {
+                    if let TokenTree::Group(group) = token_tree {
+                        for token_tree2 in group.stream() {
+                            if let TokenTree::Ident(ident) = token_tree2 {
+                                if ident.to_string().as_str() == "Default" {
+                                    return true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    false
+}
+
+fn generate_from_impl(l: &syn::ItemStruct, r: &syn::ItemStruct) -> Item {
+    let l_ident = &l.ident;
+    let r_ident = &r.ident;
 
     parse_quote! {
-        impl ::corresponding::MoveCorresponding< #r_id > for #l_id {
+        impl ::std::convert::From< #r_ident > for #l_ident {
             #[inline]
-            fn move_corresponding(&mut self, rhs: #r_id ) {
-                #(#statements)*
+            fn from(rhs: #r_ident ) -> Self {
+                use ::corresponding::MoveCorresponding;
+                let mut lhs = #l_ident ::default();
+                lhs.move_corresponding(rhs);
+                lhs
             }
         }
     }

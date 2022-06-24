@@ -9,18 +9,18 @@ mod move_corresponding {
         pub b: u8,
 
         // Option<T> to T
-        pub c: u8, // None to u8
-        pub d: u8, // Some(1) to u8
+        pub c: u8,
+        pub d: u8,
 
         // Option<T> to Option<T>
-        pub e: Option<u8>, // Do not overwrite
-        pub f: Option<u8>, // Do not overwrite
-        pub g: Option<u8>, // Overwrite
-        pub h: Option<u8>, // Overwrite
+        pub e: Option<u8>,
+        pub f: Option<u8>,
+        pub g: Option<u8>,
+        pub h: Option<u8>,
 
         // T to Option<T>
-        pub i: Option<u8>, // Overwrite
-        pub j: Option<u8>, // Overwrite
+        pub i: Option<u8>,
+        pub j: Option<u8>,
 
         // Heap values
         pub k: String,
@@ -112,6 +112,45 @@ fn test_move_corresponding() {
             k: "2".to_string(),
             l: Box::new(2),
             m: 1,
+        }
+    );
+}
+
+#[test]
+fn test_into() {
+    let a: A = B {
+        a: 2,
+        b: 2,
+        c: None,
+        d: Some(2),
+        e: None,
+        f: Some(2),
+        g: None,
+        h: Some(2),
+        i: 2,
+        j: 2,
+        k: "2".to_string(),
+        l: Box::new(2),
+        n: 2,
+    }
+    .into();
+
+    assert_eq!(
+        a,
+        A {
+            a: 2,
+            b: 0,
+            c: 0,
+            d: 2,
+            e: None,
+            f: Some(2),
+            g: None,
+            h: Some(2),
+            i: Some(2),
+            j: Some(2),
+            k: "2".to_string(),
+            l: Box::new(2),
+            m: 0,
         }
     );
 }
