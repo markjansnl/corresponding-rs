@@ -16,7 +16,7 @@ pub fn derive_corresponding(_metadata: TokenStream, input: TokenStream) -> Token
     let mut input = parse_macro_input!(input as ItemMod);
 
     if let Some((_, ref mut items)) = input.content {
-        let structs = get_structs(&items);
+        let structs = get_structs(items);
 
         for l in &structs {
             for r in &structs {
@@ -33,12 +33,12 @@ pub fn derive_corresponding(_metadata: TokenStream, input: TokenStream) -> Token
     TokenStream::from(input.into_token_stream())
 }
 
-fn get_structs(items: &Vec<Item>) -> Vec<syn::ItemStruct> {
+fn get_structs(items: &[Item]) -> Vec<syn::ItemStruct> {
     items
         .iter()
         .cloned()
         .filter_map(|item| match item {
-            Item::Struct(item_struct) => Some(item_struct.clone()),
+            Item::Struct(item_struct) => Some(item_struct),
             _ => None,
         })
         .collect()
