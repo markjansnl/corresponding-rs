@@ -26,6 +26,7 @@ mod my_mod {
         b: u8,
         c: u8,
     }
+    
     struct B {
         a: u8,
         b: Option<u8>,
@@ -44,7 +45,7 @@ fn start_moving() {
 
     a.move_corresponding(b);
     println!("{a:?}");      // Output: A { a: 2, b: 2, c: 1 }
-    
+
     let mut a2 = A { a: 3, b: 3, c: 3 };
     b.move_corresponding(a2);
     println!("{b:?}");      // Output: B { a: 3, b: Some(3), d: 2 }
