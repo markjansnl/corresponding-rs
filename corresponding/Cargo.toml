@@ -1,12 +1,14 @@
 [package]
 name = "corresponding"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 license = "MIT"
 description = "Move corresponding fields between structs"
 homepage = "https://github.com/markjansnl/corresponding-rs"
 repository = "https://github.com/markjansnl/corresponding-rs"
 readme = "../README.md"
+keywords = ["copy", "corresponding", "struct", "fields"]
+categories = ["data-structures"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
