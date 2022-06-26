@@ -26,7 +26,7 @@ mod my_mod {
         b: u8,
         c: u8,
     }
-    
+
     struct B {
         a: u8,
         b: Option<u8>,
@@ -39,6 +39,7 @@ And start moving corresponding fields from `B` to `A` and vice versa:
 
 ```rust
 use my_mod::*;
+
 fn start_moving() {
     let mut a = A { a: 1, b: 1, c: 1 };
     let mut b = B { a: 2, b: Some(2), d: 2 };
