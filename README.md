@@ -10,7 +10,7 @@ The trait `From` will be implemented for all structs in the module that derive `
 
 ## Example
 
-Put the [derive_corresponding] attribute on a module:
+Put the `derive_corresponding` attribute on a module:
 
 ```rust
 // Mod implemented in file or folder
@@ -53,7 +53,7 @@ fn start_moving() {
 }
 ```
 
-Because struct `A` derives [Default], it will also implement [From]. So you can transform `B` into `A`:
+Because struct `A` derives `Default`, it will also implement `From`. So you can transform `B` into `A`:
 
 ```rust
 fn start_transforming() {
@@ -63,7 +63,7 @@ fn start_transforming() {
 }
 ```
 
-Struct `B` doesn't derive [Default], so you cannot transform `A` to `B`. [From] is not implemented for this case.
+Struct `B` doesn't derive `Default`, so you cannot transform `A` to `B`. `From` is not implemented for this case.
 
 Also see a working example in the `examples` folder.
 
@@ -75,12 +75,14 @@ Also fields with types `T` and `Option<T>` are considered corresponding.
 - Moving `T` to `Option<T>` will always set the target field with `Some(value)`
 - Moving `Option<T>` to `Option<T>` will only set the target field when the source field is `Some(value)`
 
-This means there is no way of setting an [Option] to [None] by using [move_corresponding](MoveCorresponding::move_corresponding).
+This means there is no way of setting an `Option` to `None` by using `move_corresponding`.
 
-Deeper nested [Option]s are not supported, so `Option<Option<V>>` is considered as `Option<T>` with `T` = `Option<V>`.
+Deeper nested `Option`s are not supported, so `Option<Option<V>>` is considered as `Option<T>` with `T` = `Option<V>`.
 
 ## Expand
 
 If you have `cargo-expand` installed, you can see the generated implementations. `cd` into the `corresponding` folder and run
 
-`cargo expand --example corresponding`
+```console
+$ cargo expand --example corresponding
+```
