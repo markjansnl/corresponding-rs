@@ -84,5 +84,6 @@ Deeper nested `Option`s are not supported, so `Option<Option<V>>` is considered 
 If you have `cargo-expand` installed, you can see the generated implementations. `cd` into the `corresponding` folder and run
 
 ```console
+$ cd corresponding
 $ cargo expand --example corresponding
 ```
