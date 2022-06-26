@@ -104,16 +104,17 @@ pub trait MoveCorresponding<R> {
     /// #[derive_corresponding]
     /// mod my_mod {
     ///     #[derive(Debug, Default)]
-    ///     struct A {
-    ///         a: u8,
-    ///         b: u8,
-    ///         c: u8,
+    ///     pub struct A {
+    ///         pub a: u8,
+    ///         pub b: u8,
+    ///         pub c: u8,
     ///     }
     ///
-    ///     struct B {
-    ///         a: u8,
-    ///         b: Option<u8>,
-    ///         d: u8,
+    ///     #[derive(Debug, Clone)]
+    ///     pub struct B {
+    ///         pub a: u8,
+    ///         pub b: Option<u8>,
+    ///         pub d: u8,
     ///     }
     /// }
     /// ```
@@ -127,10 +128,10 @@ pub trait MoveCorresponding<R> {
     ///     let mut a = A { a: 1, b: 1, c: 1 };
     ///     let mut b = B { a: 2, b: Some(2), d: 2 };
     ///
-    ///     a.move_corresponding(b);
+    ///     a.move_corresponding(b.clone());
     ///     println!("{a:?}");      // Output: A { a: 2, b: 2, c: 1 }
     ///
-    ///     let mut a2 = A { a: 3, b: 3, c: 3 };
+    ///     let a2 = A { a: 3, b: 3, c: 3 };
     ///     b.move_corresponding(a2);
     ///     println!("{b:?}");      // Output: B { a: 3, b: Some(3), d: 2 }
     /// }

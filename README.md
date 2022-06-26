@@ -61,6 +61,7 @@ Because struct `A` derives `Default`, it will also implement `From`. So you can 
 ```rust
 fn start_transforming() {
     let b = B { a: 4, b: Some(4), d: 4 };
+    
     let a: A = b.into();
     println!("{a:?}");      // Output: A { a: 4, b: 4, c: 0 }
 }
