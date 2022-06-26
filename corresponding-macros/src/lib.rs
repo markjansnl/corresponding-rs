@@ -1,3 +1,15 @@
+//! [![github]](https://github.com/markjansnl/corresponding-rs)&ensp;[![crates-io]](https://crates.io/crates/corresponding-macros)&ensp;[![docs-rs]](crate)
+//!
+//! [github]: https://img.shields.io/badge/github-8da0cb?style=for-the-badge&labelColor=555555&logo=github
+//! [crates-io]: https://img.shields.io/badge/crates.io-fc8d62?style=for-the-badge&labelColor=555555&logo=rust
+//! [docs-rs]: https://img.shields.io/badge/docs.rs-66c2a5?style=for-the-badge&labelColor=555555&logo=docs.rs
+//!
+//! <br>
+//!
+//! This crate provides the procedural macros used in the [corresponding] crate.
+//!
+//! [corresponding]: https://docs.rs/corresponding/
+
 use proc_macro::TokenStream;
 use quote::{ToTokens, __private::TokenTree};
 use syn::{
@@ -11,6 +23,71 @@ struct OptionType {
     pub option: bool,
 }
 
+/// Use this macro on a module to generate [MoveCorresponding] implementations for all
+/// structs in this module. For all structs deriving [Default] also the [From] trait will
+/// be implemented.
+///
+/// # Example
+///
+/// ```
+/// // Mod implemented in file or folder
+/// #[derive_corresponding]
+/// mod my_other_mod;
+///
+/// // Mod implemented directly
+/// #[derive_corresponding]
+/// mod my_mod {
+///     #[derive(Default)]
+///     struct A {
+///         a: u8,
+///         b: u8,
+///         c: u8,
+///     }
+///
+///     struct B {
+///         a: u8,
+///         b: Option<u8>,
+///         d: u8,
+///     }
+/// }
+/// ```
+///
+/// This will implement [MoveCorresponding] for all combinations of structs within the crate
+/// module. The generated implementations are zero cost abstractions and will look like:
+///
+/// ```
+/// impl MoveCorresponding<B> for A {
+///     fn move_corresponding(&mut self, rhs: B) {
+///         self.a = rhs.a;
+///         if let Some(r) = rhs.b {
+///             self.b = r;
+///         }
+///     }
+/// }
+///
+/// impl MoveCorresponding<A> for B {
+///     fn move_corresponding(&mut self, rhs: A) {
+///         self.a = rhs.a;
+///         self.b = Some(rhs.b);
+///     }
+/// }
+/// ```
+///
+/// Because struct A derives [Default], it will also implement [From]. The generated
+/// implementation looks like:
+///
+/// ```
+/// impl From<B> for A {
+///     fn from(rhs: B) {
+///         let mut lhs = B::default();
+///         lhs.move_corresponding(rhs);
+///         lhs
+///     }
+/// }
+/// ```
+///
+/// [MoveCorresponding]: https://docs.rs/corresponding/trait.MoveCorresponding.html
+///
 #[proc_macro_attribute]
 pub fn derive_corresponding(_metadata: TokenStream, input: TokenStream) -> TokenStream {
     let mut input = parse_macro_input!(input as ItemMod);
@@ -33,6 +110,7 @@ pub fn derive_corresponding(_metadata: TokenStream, input: TokenStream) -> Token
     TokenStream::from(input.into_token_stream())
 }
 
+/// Get the structs at top level of the module
 fn get_structs(items: &[Item]) -> Vec<syn::ItemStruct> {
     items
         .iter()
@@ -44,11 +122,13 @@ fn get_structs(items: &[Item]) -> Vec<syn::ItemStruct> {
         .collect()
 }
 
+/// Generate the `impl MoveCorresponding<Right> for Left` from two ItemStructs
 fn generate_move_corresponding_impl(l: &syn::ItemStruct, r: &syn::ItemStruct) -> Item {
     let l_ident = &l.ident;
     let r_ident = &r.ident;
-    let mut statements: Vec<Stmt> = vec![];
 
+    // Prepare the statements
+    let mut statements: Vec<Stmt> = vec![];
     for l_field in &l.fields {
         for r_field in &r.fields {
             let l_field_ident = &l_field.ident;
@@ -69,6 +149,7 @@ fn generate_move_corresponding_impl(l: &syn::ItemStruct, r: &syn::ItemStruct) ->
         }
     }
 
+    // Generate the impl
     parse_quote! {
         impl ::corresponding::MoveCorresponding< #r_ident > for #l_ident {
             #[inline]
@@ -79,6 +160,7 @@ fn generate_move_corresponding_impl(l: &syn::ItemStruct, r: &syn::ItemStruct) ->
     }
 }
 
+/// Check whether the given struct has `#[derive(Default)]` attribute
 fn has_default_derive(l: &syn::ItemStruct) -> bool {
     for attribute in l.clone().attrs {
         if let Some(PathSegment { ident, .. }) = attribute.path.segments.first() {
@@ -100,6 +182,9 @@ fn has_default_derive(l: &syn::ItemStruct) -> bool {
     false
 }
 
+/// Generate `impl From<Right> for Left`
+/// Just construct a new object by using the Default trait
+/// and copy the corresponding fields
 fn generate_from_impl(l: &syn::ItemStruct, r: &syn::ItemStruct) -> Item {
     let l_ident = &l.ident;
     let r_ident = &r.ident;
@@ -117,6 +202,10 @@ fn generate_from_impl(l: &syn::ItemStruct, r: &syn::ItemStruct) -> Item {
     }
 }
 
+/// Get the type of a field
+/// When the type is Option<T>: return type T and option: true
+/// Else, for type T: return type T and option: false
+/// If we don't know the type, return a None, so the field will not be copied over
 fn get_type(ty: &syn::Type) -> Option<OptionType> {
     if let Type::Path(TypePath {
         path: Path { segments, .. },
