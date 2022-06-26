@@ -38,16 +38,16 @@ struct OptionType {
 /// #[derive_corresponding]
 /// mod my_mod {
 ///     #[derive(Default)]
-///     struct A {
-///         a: u8,
-///         b: u8,
-///         c: u8,
+///     pub struct A {
+///         pub a: u8,
+///         pub b: u8,
+///         pub c: u8,
 ///     }
 ///
 ///     struct B {
-///         a: u8,
-///         b: Option<u8>,
-///         d: u8,
+///         pub a: u8,
+///         pub b: Option<u8>,
+///         pub d: u8,
 ///     }
 /// }
 /// ```

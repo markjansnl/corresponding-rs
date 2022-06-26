@@ -6,7 +6,7 @@ license = "MIT"
 description = "Procedural macros for corresponding crate"
 homepage = "https://github.com/markjansnl/corresponding-rs"
 repository = "https://github.com/markjansnl/corresponding-rs"
-readme = "../README.md"
+readme = "README.md"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
