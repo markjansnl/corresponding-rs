@@ -2,6 +2,13 @@
 name = "corresponding-macros"
 version = "0.1.0"
 edition = "2021"
+license = "MIT"
+description = "Procedural macros for corresponding crate"
+homepage = "https://github.com/markjansnl/corresponding-rs"
+repository = "https://github.com/markjansnl/corresponding-rs"
+readme = "../README.md"
+keywords = ["copy", "corresponding", "struct", "fields"]
+categories = ["utilities"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
