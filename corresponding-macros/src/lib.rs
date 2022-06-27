@@ -29,29 +29,32 @@ struct OptionType {
 ///
 /// # Example
 ///
-/// ```no_run,compile_fail
-/// use corresponding::*;
+/// ```no_run
+/// use corresponding::derive_corresponding;
 ///
-/// // Mod implemented in file or folder
-/// #[derive_corresponding]
-/// mod my_other_mod;
-///
-/// // Mod implemented directly
 /// #[derive_corresponding]
 /// mod my_mod {
-///     #[derive(Default)]
+///     #[derive(Debug, Default)]
 ///     pub struct A {
 ///         pub a: u8,
 ///         pub b: u8,
 ///         pub c: u8,
 ///     }
 ///
+///     #[derive(Debug, Clone)]
 ///     pub struct B {
 ///         pub a: u8,
 ///         pub b: Option<u8>,
 ///         pub d: u8,
 ///     }
 /// }
+/// ```
+///
+/// You can also put the attribute on an external module. This is not supported in rustdoc, but is supported in the real world.
+///
+/// ```no_run,compile_fail
+/// #[derive_corresponding]
+/// mod my_other_mod;
 /// ```
 ///
 /// This will implement [MoveCorresponding] for all combinations of structs within the crate

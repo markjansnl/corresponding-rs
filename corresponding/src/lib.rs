@@ -19,14 +19,9 @@
 //!
 //! Put the [derive_corresponding] attribute on a module:
 //!
-//! ```no_run,compile_fail
-//! use corresponding::*;
+//! ```no_run
+//! use corresponding::derive_corresponding;
 //!
-//! // Mod implemented in file or folder
-//! #[derive_corresponding]
-//! mod my_other_mod;
-//!
-//! // Mod implemented directly
 //! #[derive_corresponding]
 //! mod my_mod {
 //!     #[derive(Debug, Default)]
@@ -45,10 +40,17 @@
 //! }
 //! ```
 //!
-//! And start moving corresponding fields from `B` to `A` and vice versa:
+//! You can also put the attribute on an external module. This is not supported in rustdoc, but is supported in the real world.
+//!
+//! ```no_run,compile_fail
+//! #[derive_corresponding]
+//! mod my_other_mod;
+//! ```
+//!
+//! Now you can start moving corresponding fields from `B` to `A` and vice versa:
 //!
 //! ```
-//! # use corresponding::*;
+//! # use corresponding::derive_corresponding;
 //! # #[derive_corresponding]
 //! # mod my_mod {
 //! #     #[derive(Debug, Default)]
@@ -65,6 +67,7 @@
 //! #         pub d: u8,
 //! #     }
 //! # }
+//! # use corresponding::MoveCorresponding;
 //! use my_mod::*;
 //!
 //! fn start_moving() {
@@ -78,13 +81,12 @@
 //!     b.move_corresponding(a2);
 //!     println!("{b:?}");      // Output: B { a: 3, b: Some(3), d: 2 }
 //! }
-//! # start_moving();
 //! ```
 //!
 //! Because struct `A` derives [Default], it will also implement [From]. So you can transform `B` into `A`:
 //!
 //! ```
-//! # use corresponding::*;
+//! # use corresponding::derive_corresponding;
 //! # #[derive_corresponding]
 //! # mod my_mod {
 //! #     #[derive(Debug, Default)]
@@ -101,6 +103,7 @@
 //! #         pub d: u8,
 //! #     }
 //! # }
+//! # use corresponding::MoveCorresponding;
 //! # use my_mod::*;
 //! fn start_transforming() {
 //!     let b = B { a: 4, b: Some(4), d: 4 };
@@ -108,7 +111,6 @@
 //!     let a: A = b.into();
 //!     println!("{a:?}");      // Output: A { a: 4, b: 4, c: 0 }
 //! }
-//! # start_transforming();
 //! ```
 //!
 //! Struct `B` doesn't derive [Default], so you cannot transform `A` to `B`. [From] is not implemented for this case.
@@ -135,10 +137,11 @@ pub trait MoveCorresponding<R> {
     ///
     /// # Example
     ///
-    /// For a module with the `derive_corresponding` attribute:
+    /// For a module with the `derive_corresponding` attribute. The following code does not compile in rustdoc, because you cannot use
+    /// a module in another file or folder. It does compile in the real world though.
     ///
     /// ```no_run
-    /// use corresponding::*;
+    /// use corresponding::derive_corresponding;
     ///
     /// #[derive_corresponding]
     /// mod my_mod {
@@ -158,10 +161,10 @@ pub trait MoveCorresponding<R> {
     /// }
     /// ```
     ///
-    /// Move the corresponding fields from `B` to `A` and vice versa:
+    /// Make sure [MoveCorresonding](MoveCorresponding) is in scope and move the corresponding fields from `B` to `A` and vice versa:
     ///
     /// ```
-    /// # use corresponding::*;
+    /// # use corresponding::derive_corresponding;
     /// # #[derive_corresponding]
     /// # mod my_mod {
     /// #     #[derive(Debug, Default)]
@@ -178,6 +181,7 @@ pub trait MoveCorresponding<R> {
     /// #         pub d: u8,
     /// #     }
     /// # }
+    /// use corresponding::MoveCorresponding;
     /// use my_mod::*;
     ///
     /// fn start_moving() {
@@ -191,7 +195,6 @@ pub trait MoveCorresponding<R> {
     ///     b.move_corresponding(a2);
     ///     println!("{b:?}");      // Output: B { a: 3, b: Some(3), d: 2 }
     /// }
-    /// # start_moving();
     /// ```
     fn move_corresponding(&mut self, rhs: R);
 }
