@@ -17,7 +17,7 @@
 //!
 //! # Example
 //!
-//! Put the [derive_corresponding] attribute on a module:
+//! Put the [derive_corresponding] attribute on a module. This module must be declared inline:
 //!
 //! ```no_run
 //! use corresponding::derive_corresponding;
@@ -38,13 +38,6 @@
 //!         pub d: u8,
 //!     }
 //! }
-//! ```
-//!
-//! You can also put the attribute on an external module. This is not supported in rustdoc, but is supported in the real world.
-//!
-//! ```no_run,compile_fail
-//! #[derive_corresponding]
-//! mod my_other_mod;
 //! ```
 //!
 //! Make sure [MoveCorresponding] is in scope and start moving corresponding fields from `B` to `A` and vice versa:

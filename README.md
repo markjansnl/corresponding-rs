@@ -10,16 +10,11 @@ The trait `From` will be implemented for all structs in the module that derive `
 
 ## Example
 
-Put the `derive_corresponding` attribute on a module:
+Put the `derive_corresponding` attribute on a module. This module must be declared inline.
 
 ```rust
 use corresponding::derive_corresponding;
 
-// Externally implemented module
-#[derive_corresponding]
-mod my_other_mod;
-
-// Directly implemented module
 #[derive_corresponding]
 mod my_mod {
     #[derive(Debug, Default)]

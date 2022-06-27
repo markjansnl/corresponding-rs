@@ -50,13 +50,6 @@ struct OptionType {
 /// }
 /// ```
 ///
-/// You can also put the attribute on an external module. This is not supported in rustdoc, but is supported in the real world.
-///
-/// ```no_run,compile_fail
-/// #[derive_corresponding]
-/// mod my_other_mod;
-/// ```
-///
 /// This will implement [MoveCorresponding] for all combinations of structs within the crate
 /// module. The generated implementations are zero cost abstractions and will look like:
 ///
