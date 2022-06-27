@@ -48,7 +48,7 @@ mod datamodel {
 // And here we are going to use them. Let's pretend we have a database and
 // want to create a user and update it.
 
-use corresponding::MoveCorresponding;
+use corresponding::prelude::*;
 use datamodel::user::*;
 
 fn main() {

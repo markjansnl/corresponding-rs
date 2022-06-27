@@ -36,7 +36,7 @@ pub mod my_mod {
 // And here we are going to use them. Let's pretend we have a database and
 // want to create a user and update it.
 
-use corresponding::MoveCorresponding;
+use corresponding::prelude::*;
 use my_mod::*;
 
 fn main() {
@@ -46,19 +46,28 @@ fn main() {
 
 fn start_moving() {
     let mut a = A { a: 1, b: 1, c: 1 };
-    let mut b = B { a: 2, b: Some(2), d: 2 };
+    let mut b = B {
+        a: 2,
+        b: Some(2),
+        d: 2,
+    };
 
-    a.move_corresponding(b.clone());
-    println!("{a:?}");      // Output: A { a: 2, b: 2, c: 1 }
+    a.clone_corresponding(&b);
+    println!("{a:?}"); // Output: A { a: 2, b: 2, c: 1 }
 
     let a2 = A { a: 3, b: 3, c: 3 };
     b.move_corresponding(a2);
-    println!("{b:?}");      // Output: B { a: 3, b: Some(3), d: 2 }
+    println!("{b:?}"); // Output: B { a: 3, b: Some(3), d: 2 }
 }
 
 fn start_transforming() {
-    let b = B { a: 4, b: Some(4), d: 4 };
+    let b = B {
+        a: 4,
+        b: Some(4),
+        d: 4,
+    };
 
+    let _a: A = b.cloned_into();
     let a: A = b.into();
-    println!("{a:?}");      // Output: A { a: 4, b: 4, c: 0 }
+    println!("{a:?}"); // Output: A { a: 4, b: 4, c: 0 }
 }

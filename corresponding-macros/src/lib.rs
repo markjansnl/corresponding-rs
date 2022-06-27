@@ -140,8 +140,14 @@ pub fn derive_corresponding(_metadata: TokenStream, input: TokenStream) -> Token
             for r in &structs {
                 if l != r {
                     items.push(generate_move_corresponding_impl(l, r));
-                    if has_default_derive(l) {
+                    if has_derive(l, "Default") {
                         items.push(generate_from_impl(l, r));
+                        if has_derive(r, "Clone") {
+                            items.push(generate_from_cloned_impl(l, r));
+                        }
+                    }
+                    if has_derive(r, "Clone") {
+                        items.push(generate_clone_corresponding_impl(l, r));
                     }
                 }
             }
@@ -168,7 +174,7 @@ fn generate_move_corresponding_impl(l: &syn::ItemStruct, r: &syn::ItemStruct) ->
     let l_ident = &l.ident;
     let r_ident = &r.ident;
 
-    // Prepare the statements
+    // Generate the statements
     let mut statements: Vec<Stmt> = vec![];
     for l_field in &l.fields {
         for r_field in &r.fields {
@@ -181,8 +187,8 @@ fn generate_move_corresponding_impl(l: &syn::ItemStruct, r: &syn::ItemStruct) ->
                         match (l_type.option, r_type.option) {
                             (false, false) => statements.push(parse_quote! { self. #l_field_ident = rhs. #r_field_ident ; }),
                             (true, false) => statements.push(parse_quote! { self. #l_field_ident = Some ( rhs. #r_field_ident ) ; }),
-                            (false, true) => statements.push(parse_quote! { if let Some ( r ) = rhs. #r_field_ident { self. #l_field_ident = r } ; }),
-                            (true, true) => statements.push(parse_quote! { if rhs. #r_field_ident .is_some() { self. #l_field_ident = rhs. #r_field_ident } ; }),
+                            (false, true) => statements.push(parse_quote! { if let Some ( r ) = rhs. #r_field_ident { self. #l_field_ident = r } }),
+                            (true, true) => statements.push(parse_quote! { if rhs. #r_field_ident .is_some() { self. #l_field_ident = rhs. #r_field_ident } }),
                         }
                     }
                 }
@@ -201,8 +207,46 @@ fn generate_move_corresponding_impl(l: &syn::ItemStruct, r: &syn::ItemStruct) ->
     }
 }
 
-/// Check whether the given struct has `#[derive(Default)]` attribute
-fn has_default_derive(l: &syn::ItemStruct) -> bool {
+/// Generate the `impl CloneCorresponding<Right> for Left` from two ItemStructs
+fn generate_clone_corresponding_impl(l: &syn::ItemStruct, r: &syn::ItemStruct) -> Item {
+    let l_ident = &l.ident;
+    let r_ident = &r.ident;
+
+    // Generate the statements
+    let mut statements: Vec<Stmt> = vec![];
+    for l_field in &l.fields {
+        for r_field in &r.fields {
+            let l_field_ident = &l_field.ident;
+            let r_field_ident = &r_field.ident;
+
+            if let Some(l_type) = get_type(&l_field.ty) {
+                if let Some(r_type) = get_type(&r_field.ty) {
+                    if l_field_ident == r_field_ident && l_type.ident == r_type.ident {
+                        match (l_type.option, r_type.option) {
+                            (false, false) => statements.push(parse_quote! { self. #l_field_ident = rhs. #r_field_ident .clone() ; }),
+                            (true, false) => statements.push(parse_quote! { self. #l_field_ident = Some ( rhs. #r_field_ident .clone()) ; }),
+                            (false, true) => statements.push(parse_quote! { if rhs. #r_field_ident .is_some() { self. #l_field_ident = rhs. #r_field_ident .clone().unwrap() } }),
+                            (true, true) => statements.push(parse_quote! { if rhs. #r_field_ident .is_some() { self. #l_field_ident = rhs. #r_field_ident .clone() } }),
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Generate the impl
+    parse_quote! {
+        impl ::corresponding::CloneCorresponding< #r_ident > for #l_ident {
+            #[inline]
+            fn clone_corresponding(&mut self, rhs: & #r_ident ) {
+                #(#statements)*
+            }
+        }
+    }
+}
+
+/// Check whether the given struct has `#[derive(...)]` attribute
+fn has_derive(l: &syn::ItemStruct, derive: &str) -> bool {
     for attribute in l.clone().attrs {
         if let Some(PathSegment { ident, .. }) = attribute.path.segments.first() {
             if ident.to_string().as_str() == "derive" {
@@ -210,7 +254,7 @@ fn has_default_derive(l: &syn::ItemStruct) -> bool {
                     if let TokenTree::Group(group) = token_tree {
                         for token_tree2 in group.stream() {
                             if let TokenTree::Ident(ident) = token_tree2 {
-                                if ident.to_string().as_str() == "Default" {
+                                if ident.to_string().as_str() == derive {
                                     return true;
                                 }
                             }
@@ -225,7 +269,7 @@ fn has_default_derive(l: &syn::ItemStruct) -> bool {
 
 /// Generate `impl From<Right> for Left`
 /// Just construct a new object by using the Default trait
-/// and copy the corresponding fields
+/// and move the corresponding fields
 fn generate_from_impl(l: &syn::ItemStruct, r: &syn::ItemStruct) -> Item {
     let l_ident = &l.ident;
     let r_ident = &r.ident;
@@ -235,8 +279,28 @@ fn generate_from_impl(l: &syn::ItemStruct, r: &syn::ItemStruct) -> Item {
             #[inline]
             fn from(rhs: #r_ident ) -> Self {
                 use ::corresponding::MoveCorresponding;
-                let mut lhs = #l_ident ::default();
+                let mut lhs = Self::default();
                 lhs.move_corresponding(rhs);
+                lhs
+            }
+        }
+    }
+}
+
+/// Generate `impl FromCloned<Right> for Left`
+/// Just construct a new object by using the Default trait
+/// and clone the corresponding fields
+fn generate_from_cloned_impl(l: &syn::ItemStruct, r: &syn::ItemStruct) -> Item {
+    let l_ident = &l.ident;
+    let r_ident = &r.ident;
+
+    parse_quote! {
+        impl ::corresponding::FromCloned< #r_ident > for #l_ident {
+            #[inline]
+            fn from_cloned(rhs: & #r_ident ) -> Self {
+                use ::corresponding::CloneCorresponding;
+                let mut lhs = Self::default();
+                lhs.clone_corresponding(rhs);
                 lhs
             }
         }

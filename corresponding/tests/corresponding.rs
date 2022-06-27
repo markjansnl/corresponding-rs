@@ -1,7 +1,7 @@
 use corresponding::*;
 
 #[derive_corresponding]
-mod move_corresponding {
+mod test_mod {
     #[derive(Default, Debug, Clone, Eq, PartialEq)]
     pub struct A {
         // Same vs other type
@@ -30,6 +30,7 @@ mod move_corresponding {
         pub m: u8,
     }
 
+    #[derive(Clone)]
     pub struct B {
         // Same vs other type
         pub a: u8,
@@ -58,7 +59,7 @@ mod move_corresponding {
     }
 }
 
-pub use move_corresponding::*;
+pub use test_mod::*;
 
 #[test]
 fn test_move_corresponding() {
@@ -117,6 +118,62 @@ fn test_move_corresponding() {
 }
 
 #[test]
+fn test_clone_corresponding() {
+    let mut a = A {
+        a: 1,
+        b: 1,
+        c: 1,
+        d: 1,
+        e: None,
+        f: None,
+        g: Some(1),
+        h: Some(1),
+        i: None,
+        j: Some(1),
+        k: "1".to_string(),
+        l: Box::new(1),
+        m: 1,
+    };
+
+    let b = B {
+        a: 2,
+        b: 2,
+        c: None,
+        d: Some(2),
+        e: None,
+        f: Some(2),
+        g: None,
+        h: Some(2),
+        i: 2,
+        j: 2,
+        k: "2".to_string(),
+        l: Box::new(2),
+        n: 2,
+    };
+
+    a.clone_corresponding(&b);
+
+    assert_eq!(
+        a,
+        A {
+            a: 2,
+            b: 1,
+            c: 1,
+            d: 2,
+            e: None,
+            f: Some(2),
+            g: Some(1),
+            h: Some(2),
+            i: Some(2),
+            j: Some(2),
+            k: "2".to_string(),
+            l: Box::new(2),
+            m: 1,
+        }
+    );
+}
+
+#[test]
 fn test_into() {
     let a: A = B {
         a: 2,
@@ -134,6 +191,45 @@ fn test_into() {
         n: 2,
     }
     .into();
+
+    assert_eq!(
+        a,
+        A {
+            a: 2,
+            b: 0,
+            c: 0,
+            d: 2,
+            e: None,
+            f: Some(2),
+            g: None,
+            h: Some(2),
+            i: Some(2),
+            j: Some(2),
+            k: "2".to_string(),
+            l: Box::new(2),
+            m: 0,
+        }
+    );
+}
+
+#[test]
+fn test_cloned_into() {
+    let a: A = B {
+        a: 2,
+        b: 2,
+        c: None,
+        d: Some(2),
+        e: None,
+        f: Some(2),
+        g: None,
+        h: Some(2),
+        i: 2,
+        j: 2,
+        k: "2".to_string(),
+        l: Box::new(2),
+        n: 2,
+    }
+    .cloned_into();
 
     assert_eq!(
         a,

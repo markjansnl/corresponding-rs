@@ -121,6 +121,7 @@
 //! Deeper nested [Option]s are not supported, so `Option<Option<V>>` is considered as `Option<T>` with `T` = `Option<V>`.
 
 pub use corresponding_macros::derive_corresponding;
+pub mod prelude;
 
 /// Trait holding the [move_corresponding](MoveCorresponding::move_corresponding) function.
 pub trait MoveCorresponding<R> {
@@ -190,4 +191,22 @@ pub trait MoveCorresponding<R> {
     /// }
     /// ```
     fn move_corresponding(&mut self, rhs: R);
+}
+
+pub trait CloneCorresponding<R: Clone> {
+    fn clone_corresponding(&mut self, rhs: &R);
+}
+
+pub trait FromCloned<R: Clone>: Default {
+    fn from_cloned(rhs: &R) -> Self;
+}
+
+pub trait ClonedInto<L: FromCloned<Self>>: Clone {
+    fn cloned_into(&self) -> L;
+}
+
+impl<L: FromCloned<R>, R: Clone> ClonedInto<L> for R {
+    fn cloned_into(&self) -> L {
+        L::from_cloned(self)
+    }
 }
