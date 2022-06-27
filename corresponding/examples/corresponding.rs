@@ -15,7 +15,7 @@
 // Here is the data module with the `derive_corresponding` attribute:
 
 mod datamodel {
-    use corresponding::*;
+    use corresponding::derive_corresponding;
 
     #[derive_corresponding]
     pub mod user {
@@ -48,7 +48,7 @@ mod datamodel {
 // And here we are going to use them. Let's pretend we have a database and
 // want to create a user and update it.
 
-use corresponding::*;
+use corresponding::MoveCorresponding;
 use datamodel::user::*;
 
 fn main() {
