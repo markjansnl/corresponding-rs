@@ -71,6 +71,7 @@ struct OptionType {
 /// # use corresponding::MoveCorresponding;
 /// # use my_mod::*;
 /// impl MoveCorresponding<B> for A {
+///     #[inline]
 ///     fn move_corresponding(&mut self, rhs: B) {
 ///         self.a = rhs.a;
 ///         if let Some(r) = rhs.b {
@@ -80,6 +81,7 @@ struct OptionType {
 /// }
 ///
 /// impl MoveCorresponding<A> for B {
+///     #[inline]
 ///     fn move_corresponding(&mut self, rhs: A) {
 ///         self.a = rhs.a;
 ///         self.b = Some(rhs.b);
@@ -116,6 +118,7 @@ struct OptionType {
 /// # }
 /// # use my_mod::*;
 /// impl From<B> for A {
+///     #[inline]
 ///     fn from(rhs: B) -> Self {
 ///         let mut lhs = A::default();
 ///         lhs.move_corresponding(rhs);

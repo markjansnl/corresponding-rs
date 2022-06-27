@@ -65,7 +65,7 @@ fn start_transforming() {
 
 Struct `B` doesn't derive `Default`, so you cannot transform `A` to `B`. `From` is not implemented for this case.
 
-Also see a working example in the `examples` folder.
+Also see a database example in the `examples` folder.
 
 ## Options
 
@@ -85,5 +85,5 @@ If you have `cargo-expand` installed, you can see the generated implementations 
 
 ```console
 $ cd corresponding
-$ cargo expand --example corresponding
+$ cargo expand --example simple
 ```
