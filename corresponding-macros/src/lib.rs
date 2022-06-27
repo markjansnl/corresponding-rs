@@ -29,7 +29,9 @@ struct OptionType {
 ///
 /// # Example
 ///
-/// ```
+/// ```no_run,compile_fail
+/// use corresponding::*;
+///
 /// // Mod implemented in file or folder
 /// #[derive_corresponding]
 /// mod my_other_mod;
@@ -44,7 +46,7 @@ struct OptionType {
 ///         pub c: u8,
 ///     }
 ///
-///     struct B {
+///     pub struct B {
 ///         pub a: u8,
 ///         pub b: Option<u8>,
 ///         pub d: u8,
@@ -55,7 +57,23 @@ struct OptionType {
 /// This will implement [MoveCorresponding] for all combinations of structs within the crate
 /// module. The generated implementations are zero cost abstractions and will look like:
 ///
-/// ```
+/// ```no_run
+/// # mod my_mod {
+/// #     #[derive(Default)]
+/// #     pub struct A {
+/// #         pub a: u8,
+/// #         pub b: u8,
+/// #         pub c: u8,
+/// #     }
+/// #
+/// #     pub struct B {
+/// #         pub a: u8,
+/// #         pub b: Option<u8>,
+/// #         pub d: u8,
+/// #     }
+/// # }
+/// # use corresponding::MoveCorresponding;
+/// # use my_mod::*;
 /// impl MoveCorresponding<B> for A {
 ///     fn move_corresponding(&mut self, rhs: B) {
 ///         self.a = rhs.a;
@@ -76,10 +94,34 @@ struct OptionType {
 /// Because struct A derives [Default], it will also implement [From]. The generated
 /// implementation looks like:
 ///
-/// ```
+/// ```no_run
+/// # mod my_mod {
+/// #     #[derive(Default)]
+/// #     pub struct A {
+/// #         pub a: u8,
+/// #         pub b: u8,
+/// #         pub c: u8,
+/// #     }
+/// #
+/// #     pub struct B {
+/// #         pub a: u8,
+/// #         pub b: Option<u8>,
+/// #         pub d: u8,
+/// #     }
+/// # }
+/// # use corresponding::MoveCorresponding;
+/// # impl MoveCorresponding<B> for A {
+/// #     fn move_corresponding(&mut self, rhs: B) {
+/// #         self.a = rhs.a;
+/// #         if let Some(r) = rhs.b {
+/// #             self.b = r;
+/// #         }
+/// #     }
+/// # }
+/// # use my_mod::*;
 /// impl From<B> for A {
-///     fn from(rhs: B) {
-///         let mut lhs = B::default();
+///     fn from(rhs: B) -> Self {
+///         let mut lhs = A::default();
 ///         lhs.move_corresponding(rhs);
 ///         lhs
 ///     }

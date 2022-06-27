@@ -12,8 +12,10 @@ readme = "README.md"
 
 [lib]
 proc-macro = true
-doctest = false
 
 [dependencies]
 syn = { version = "1", features = ["full", "extra-traits"] }
 quote = "1"
+
+[dev-dependencies]
+corresponding = { version = "0.1", path = "../corresponding" }

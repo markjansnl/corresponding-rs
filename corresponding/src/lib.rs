@@ -19,9 +19,9 @@
 //!
 //! Put the [derive_corresponding] attribute on a module:
 //!
-//! ```
+//! ```no_run,compile_fail
 //! use corresponding::*;
-//! 
+//!
 //! // Mod implemented in file or folder
 //! #[derive_corresponding]
 //! mod my_other_mod;
@@ -48,6 +48,23 @@
 //! And start moving corresponding fields from `B` to `A` and vice versa:
 //!
 //! ```
+//! # use corresponding::*;
+//! # #[derive_corresponding]
+//! # mod my_mod {
+//! #     #[derive(Debug, Default)]
+//! #     pub struct A {
+//! #         pub a: u8,
+//! #         pub b: u8,
+//! #         pub c: u8,
+//! #     }
+//! #
+//! #     #[derive(Debug, Clone)]
+//! #     pub struct B {
+//! #         pub a: u8,
+//! #         pub b: Option<u8>,
+//! #         pub d: u8,
+//! #     }
+//! # }
 //! use my_mod::*;
 //!
 //! fn start_moving() {
@@ -66,6 +83,24 @@
 //! Because struct `A` derives [Default], it will also implement [From]. So you can transform `B` into `A`:
 //!
 //! ```
+//! # use corresponding::*;
+//! # #[derive_corresponding]
+//! # mod my_mod {
+//! #     #[derive(Debug, Default)]
+//! #     pub struct A {
+//! #         pub a: u8,
+//! #         pub b: u8,
+//! #         pub c: u8,
+//! #     }
+//! #
+//! #     #[derive(Debug, Clone)]
+//! #     pub struct B {
+//! #         pub a: u8,
+//! #         pub b: Option<u8>,
+//! #         pub d: u8,
+//! #     }
+//! # }
+//! # use my_mod::*;
 //! fn start_transforming() {
 //!     let b = B { a: 4, b: Some(4), d: 4 };
 //!
@@ -100,7 +135,9 @@ pub trait MoveCorresponding<R> {
     ///
     /// For a module with the `derive_corresponding` attribute:
     ///
-    /// ```
+    /// ```no_run
+    /// use corresponding::*;
+    ///
     /// #[derive_corresponding]
     /// mod my_mod {
     ///     #[derive(Debug, Default)]
@@ -122,6 +159,23 @@ pub trait MoveCorresponding<R> {
     /// Move the corresponding fields from `B` to `A` and vice versa:
     ///
     /// ```
+    /// # use corresponding::*;
+    /// # #[derive_corresponding]
+    /// # mod my_mod {
+    /// #     #[derive(Debug, Default)]
+    /// #     pub struct A {
+    /// #         pub a: u8,
+    /// #         pub b: u8,
+    /// #         pub c: u8,
+    /// #     }
+    /// #
+    /// #     #[derive(Debug, Clone)]
+    /// #     pub struct B {
+    /// #         pub a: u8,
+    /// #         pub b: Option<u8>,
+    /// #         pub d: u8,
+    /// #     }
+    /// # }
     /// use my_mod::*;
     ///
     /// fn start_moving() {
