@@ -47,7 +47,7 @@
 //! mod my_other_mod;
 //! ```
 //!
-//! Now you can start moving corresponding fields from `B` to `A` and vice versa:
+//! Make sure [MoveCorresponding] is in scope and start moving corresponding fields from `B` to `A` and vice versa:
 //!
 //! ```
 //! # use corresponding::derive_corresponding;
@@ -67,7 +67,7 @@
 //! #         pub d: u8,
 //! #     }
 //! # }
-//! # use corresponding::MoveCorresponding;
+//! use corresponding::MoveCorresponding;
 //! use my_mod::*;
 //!
 //! fn start_moving() {
@@ -83,7 +83,7 @@
 //! }
 //! ```
 //!
-//! Because struct `A` derives [Default], it will also implement [From]. So you can transform `B` into `A`:
+//! Because struct `A` derives [Default], it will also implement [From]. So you can transform `B` to `A`:
 //!
 //! ```
 //! # use corresponding::derive_corresponding;
@@ -161,7 +161,7 @@ pub trait MoveCorresponding<R> {
     /// }
     /// ```
     ///
-    /// Make sure [MoveCorresonding](MoveCorresponding) is in scope and move the corresponding fields from `B` to `A` and vice versa:
+    /// Make sure [MoveCorresonding](MoveCorresponding) is in scope and start moving the corresponding fields from `B` to `A` and vice versa:
     ///
     /// ```
     /// # use corresponding::derive_corresponding;

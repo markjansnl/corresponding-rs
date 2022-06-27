@@ -13,13 +13,13 @@ The trait `From` will be implemented for all structs in the module that derive `
 Put the `derive_corresponding` attribute on a module:
 
 ```rust
-use corresponding::*;
+use corresponding::derive_corresponding;
 
-// Mod implemented in file or folder
+// Externally implemented module
 #[derive_corresponding]
 mod my_other_mod;
 
-// Mod implemented directly
+// Directly implemented module
 #[derive_corresponding]
 mod my_mod {
     #[derive(Debug, Default)]
@@ -38,9 +38,10 @@ mod my_mod {
 }
 ```
 
-And start moving corresponding fields from `B` to `A` and vice versa:
+Make sure `MoveCorresponding` is in scope and start moving corresponding fields from `B` to `A` and vice versa:
 
 ```rust
+use corresponding::MoveCorresponding;
 use my_mod::*;
 
 fn start_moving() {
@@ -56,7 +57,7 @@ fn start_moving() {
 }
 ```
 
-Because struct `A` derives `Default`, it will also implement `From`. So you can transform `B` into `A`:
+Because struct `A` derives `Default`, it will also implement `From`. So you can transform `B` to `A`:
 
 ```rust
 fn start_transforming() {
