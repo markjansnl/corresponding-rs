@@ -78,6 +78,7 @@
 //!     b.move_corresponding(a2);
 //!     println!("{b:?}");      // Output: B { a: 3, b: Some(3), d: 2 }
 //! }
+//! # start_moving();
 //! ```
 //!
 //! Because struct `A` derives [Default], it will also implement [From]. So you can transform `B` into `A`:
@@ -107,6 +108,7 @@
 //!     let a: A = b.into();
 //!     println!("{a:?}");      // Output: A { a: 4, b: 4, c: 0 }
 //! }
+//! # start_transforming();
 //! ```
 //!
 //! Struct `B` doesn't derive [Default], so you cannot transform `A` to `B`. [From] is not implemented for this case.
@@ -189,6 +191,7 @@ pub trait MoveCorresponding<R> {
     ///     b.move_corresponding(a2);
     ///     println!("{b:?}");      // Output: B { a: 3, b: Some(3), d: 2 }
     /// }
+    /// # start_moving();
     /// ```
     fn move_corresponding(&mut self, rhs: R);
 }
